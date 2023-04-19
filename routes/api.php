@@ -18,10 +18,10 @@ Route::get('/me', function(Request $request) {
 });
 
 Route::post('/login', function (Request $request) {
-    if($request["user"]) return response(["success" => false], 400);
+    if($request["user"]) return response(["success" => false, "data" => "You are already logged in"], 400);
 
     $validate = Validator::make($request->all(), [
-        'phone' => ['required'],
+        'email' => ['required'],
         'password' => ['required']
     ]);
 
@@ -32,7 +32,7 @@ Route::post('/login', function (Request $request) {
         ], 400);
     }
 
-    $u = User::where("phone", $request->post('phone', ''))->first();
+    $u = User::where("email", $request->post('email', ''))->first();
     if(!$u) return response([
         "success" => false,
         "data" => "i cannot find the user"
