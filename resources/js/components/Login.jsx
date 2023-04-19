@@ -34,7 +34,7 @@ function LoginModal({ currentModal, onHide = () => { }, change }) {
                 }
             })
 
-            toast(`Logged in as ${data.user.name}`, {
+            toast(`Logged in as ${data.data.user.name}`, {
                 type: "success"
             })
         } catch (error) {
@@ -104,6 +104,36 @@ function LoginModal({ currentModal, onHide = () => { }, change }) {
 
 function RegisterModal({ currentModal, onHide = () => { }, change }) {
     const [name, setName] = useState('')
+    const [email, setEmail] = useState('')
+    const [phone, setPhone] = useState('')
+    const [password, setPassword] = useState('')
+    const [cp, setCp] = useState('')
+    const [disabled, setDisabled] = useState(false)
+
+    const register = async () => {
+        if(password !== cp) return toast("Password don't match", { type: "error" })
+
+        setDisabled(true)
+        try {
+            const { data } = await window.axios({
+                method: "POST",
+                url: "/api/register",
+                data: {
+                    email, password, password_confirmation: password, phone, name
+                }
+            })
+
+            toast(`Registerd as ${data.data.user.name}`, {
+                type: "success"
+            })
+        } catch (error) {
+            const data = error.response?.data || "Something went wrong!"
+            toast(typeof data.data === "string" ? data.data : data.data[0], {
+                type: "error"
+            })
+        }
+        setDisabled(false)
+    }
 
     return (
         <Modal show={currentModal} onHide={onHide}>
@@ -117,6 +147,7 @@ function RegisterModal({ currentModal, onHide = () => { }, change }) {
                     role="form"
                     className="php-email-form"
                     autoComplete="off"
+                    onSubmit={e => e.preventDefault()}
                 >
                     <div className="row">
                         <div className="col-lg-6">
@@ -127,7 +158,8 @@ function RegisterModal({ currentModal, onHide = () => { }, change }) {
                                     className="form-control rounded-0"
                                     name="CompanyName"
                                     id="CompanyName"
-                                    required=""
+                                    value={name}
+                                    onChange={e => setName(e.target.value)}
                                 />
                             </div>
                             <div className="form-group mt-3">
@@ -147,7 +179,8 @@ function RegisterModal({ currentModal, onHide = () => { }, change }) {
                                     className="form-control rounded-0"
                                     name="phone"
                                     id="phone"
-                                    required=""
+                                    value={phone}
+                                    onChange={e => setPhone(e.target.value)}
                                 />
                             </div>
                             <div className="form-group mt-3">
@@ -157,7 +190,8 @@ function RegisterModal({ currentModal, onHide = () => { }, change }) {
                                     className="form-control rounded-0"
                                     name="password"
                                     id="password"
-                                    required=""
+                                    value={password}
+                                    onChange={e => setPassword(e.target.value)}
                                 />
                             </div>
                         </div>
@@ -194,7 +228,8 @@ function RegisterModal({ currentModal, onHide = () => { }, change }) {
                                     className="form-control rounded-0"
                                     name="email"
                                     id="email"
-                                    required=""
+                                    value={email}
+                                    onChange={e => setEmail(e.target.value)}
                                 />
                             </div>
                             <div className="form-group mt-3">
@@ -204,7 +239,8 @@ function RegisterModal({ currentModal, onHide = () => { }, change }) {
                                     className="form-control rounded-0"
                                     name="confirmPassword"
                                     id="confirmPassword"
-                                    required=""
+                                    value={cp}
+                                    onChange={e => setCp(e.target.value)}
                                 />
                             </div>
                         </div>
@@ -216,15 +252,16 @@ function RegisterModal({ currentModal, onHide = () => { }, change }) {
                     <a
                         className="btn px-5 mb-3"
                         id="login"
-                        data-bs-target="#exampleModalToggle3"
-                        data-bs-toggle="modal"
+                        onClick={e => {
+                            e.preventDefault()
+                            if(disabled) return
+                            register()
+                        }}
                     >
                         انشاء الحساب
                     </a>{" "}
                     <br />
                     <a
-                        data-bs-target="#exampleModalToggle"
-                        data-bs-toggle="modal"
                         style={{ cursor: "pointer" }}
                     >
                         {" "}

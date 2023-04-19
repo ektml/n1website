@@ -20,7 +20,7 @@ Route::get('about', function () {
 // Admin
 Route::get('/admin', function () {
     return view('admin.parts.statistics');
-});
+})->middleware('signedin'); // signedout
 
 Route::get('/personalInfo', function () {
     return view('admin.parts.personalInfo');

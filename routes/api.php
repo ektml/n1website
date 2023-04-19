@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Validator;
 
-Route::post('/session', function () {
+Route::get('/session', function () {
     return response(session()->all());
 });
 
@@ -59,8 +59,15 @@ Route::post('/login', function (Request $request) {
     ]);
 });
 
+Route::get('/logout', function() {
+    session()->remove(env('JWT_KEY'));
+    session()->flush();
+    session()->regenerate(true);
+    return redirect("/");
+});
+
 Route::post('/register', function (Request $request) {
-    if($request["user"]) return response(["success" => false], 400);
+    if($request["user"]) return response(["success" => false, "data" => "You are already registered!"], 400);
 
     $validate = Validator::make($request->all(), [
         'name' => ['required', 'max:50'],
